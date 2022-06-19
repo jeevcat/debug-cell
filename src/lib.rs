@@ -260,7 +260,7 @@ pub struct Ref<'b, T: ?Sized + 'b> {
     _borrow: BorrowRef<'b>,
 }
 
-impl<'b, T: ?Sized> Deref for Ref<'b, T> {
+impl<T: ?Sized> Deref for Ref<'_, T> {
     type Target = T;
     fn deref(&self) -> &T {
         self._value
@@ -279,7 +279,7 @@ impl<'b, T: ?Sized> Ref<'b, T> {
     /// # Examples
     ///
     /// ```
-    /// use std::cell::{RefCell, Ref};
+    /// use debug_cell::{RefCell, Ref};
     ///
     /// let c = RefCell::new((5, 'b'));
     /// let b1: Ref<(u32, char)> = c.borrow();

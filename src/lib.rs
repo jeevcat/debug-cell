@@ -267,6 +267,37 @@ impl<'b, T: ?Sized> Deref for Ref<'b, T> {
     }
 }
 
+impl<'b, T: ?Sized> Ref<'b, T> {
+    /// Makes a new `Ref` for a component of the borrowed data.
+    ///
+    /// The `RefCell` is already immutably borrowed, so this cannot fail.
+    ///
+    /// This is an associated function that needs to be used as `Ref::map(...)`.
+    /// A method would interfere with methods of the same name on the contents
+    /// of a `RefCell` used through `Deref`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::cell::{RefCell, Ref};
+    ///
+    /// let c = RefCell::new((5, 'b'));
+    /// let b1: Ref<(u32, char)> = c.borrow();
+    /// let b2: Ref<u32> = Ref::map(b1, |t| &t.0);
+    /// assert_eq!(*b2, 5)
+    /// ```
+    #[inline]
+    pub fn map<U: ?Sized, F>(orig: Ref<'b, T>, f: F) -> Ref<'b, U>
+    where
+        F: FnOnce(&T) -> &U,
+    {
+        Ref {
+            _value: f(orig._value),
+            _borrow: orig._borrow,
+        }
+    }
+}
+
 struct BorrowRefMut<'b> {
     borrow: &'b BorrowFlag,
 }
